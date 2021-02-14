@@ -1,0 +1,4 @@
+*.pyc
+/bazel-*
+/dist
+fp-info-cache

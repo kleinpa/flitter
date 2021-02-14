@@ -1,0 +1,11 @@
+{
+	"name": "music-on-zircon-dev",
+	"build": {
+		"dockerfile": "Dockerfile",
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"bazelbuild.vscode-bazel",
+		"ms-python.python"
+	],
+}
