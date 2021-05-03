@@ -14,17 +14,21 @@ pip_install(
 )
 
 http_archive(
-    name = "com_github_kleinpa_kbtb",
-    sha256 = "ae83685842e7004999dde6d6ec56eefb7364d43b6ea9c6009c1bee73dbe78131",
-    strip_prefix = "kbtb-961ec507984ec8dabf2fda750ff9c068b331a2db",
-    url = "https://github.com/kleinpa/kbtb/archive/961ec507984ec8dabf2fda750ff9c068b331a2db.tar.gz",
+    name = "com_github_kleinpa_keyboardtoolbox",
+    sha256 = "f28e5c1c4ba8b855d4849d8c8d52d909bb44b455b3a46d13751e3a8e27fd8af7",
+    strip_prefix = "keyboard-toolbox-3a4910e5b9d5ce1388120465778b6011a2a532df",
+    url = "https://github.com/kleinpa/keyboard-toolbox/archive/3a4910e5b9d5ce1388120465778b6011a2a532df.tar.gz",
 )
 
-load("@com_github_kleinpa_kbtb//kbtb:repos.bzl", "kbtb_repos")
+load("@com_github_kleinpa_keyboardtoolbox//kbtb:repos.bzl", "kbtb_repos")
 
 kbtb_repos()
 
-load("@com_github_kleinpa_kbtb//kbtb:deps.bzl", "kbtb_deps")
+load("@com_github_kleinpa_kicadbazel//:repos.bzl", "kicadbazel_repos")
+
+kicadbazel_repos()
+
+load("@com_github_kleinpa_keyboardtoolbox//kbtb:deps.bzl", "kbtb_deps")
 
 kbtb_deps()
 

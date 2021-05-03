@@ -16,7 +16,7 @@ def layout():
     kb = Keyboard(
         name="quine-mk3",
         controller=Keyboard.CONTROLLER_STM32F072,
-        footprint=Keyboard.FOOTPRINT_CHERRY_MX,
+        switch=Keyboard.SWITCH_CHERRY_MX,
 
         # Plate outline parameters
         hole_diameter=2.4,
@@ -25,6 +25,7 @@ def layout():
     pitch = 19.05
 
     column_offsets = [x * 1.6 for x in [-1.0, 0.0, 5.0, 2.25, -4.8, -6.3]]
+
     keys = [
         *(grid(x, 3, y_offset=column_offsets[x]) for x in range(6)),
         *(grid(x, 2, y_offset=column_offsets[x]) for x in range(6)),

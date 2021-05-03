@@ -16,7 +16,7 @@ def layout():
     kb = Keyboard(
         name="quine-mk2",
         controller=Keyboard.CONTROLLER_PROMICRO,
-        footprint=Keyboard.FOOTPRINT_CHERRY_MX,
+        switch=Keyboard.SWITCH_CHERRY_MX,
 
         # Plate outline parameters
         hole_diameter=2.6,

@@ -1,6 +1,7 @@
 load("@rules_python//python:defs.bzl", "py_binary")
-load("@com_github_kleinpa_kbtb//kbtb:defs.bzl", "keyboard_plate_dxf")
+load("@com_github_kleinpa_keyboardtoolbox//kbtb:defs.bzl", "keyboard_plate_dxf")
 load("@my_deps//:requirements.bzl", "requirement")
+load("@com_github_kleinpa_kicadbazel//tools:defs.bzl", "gerbers_from_kicad")
 
 py_binary(
     name = "layout",
@@ -9,7 +10,7 @@ py_binary(
     ],
     deps = [
         requirement("absl-py"),
-        "@com_github_kleinpa_kbtb//kbtb:keyboard_lib",
+        "@com_github_kleinpa_keyboardtoolbox//kbtb:keyboard_lib",
     ],
 )
 
@@ -17,30 +18,31 @@ genrule(
     name = "layout_pb",
     outs = ["layout.pb"],
     cmd = "./$(location :layout) --output=\"$@\"",
-    tools = [":layout"],
+    exec_tools = [":layout"],
 )
 
 keyboard_plate_dxf(
-    name = "layout_dxf",
+    name = "plate_top",
     src = ":layout_pb",
+    plate_type = "top",
 )
 
 genrule(
     name = "layout_svg",
     srcs = [":layout_pb"],
     outs = ["layout.svg"],
-    cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli:to_svg) --input=\"$<\" --format=svg --output=\"$@\"",
-    tools = ["@com_github_kleinpa_kbtb//kbtb/cli:to_svg"],
+    cmd = "./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli:to_svg) --input=\"$<\" --format=svg --output=\"$@\"",
+    exec_tools = ["@com_github_kleinpa_keyboardtoolbox//kbtb/cli:to_svg"],
 )
 
 genrule(
     name = "board_kicad",
     srcs = [":layout_pb"],
     outs = ["board.kicad_pcb"],
-    cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli) --input=\"$<\" --format=main_kicad_pcb --output=\"$@\"",
-    tools = [
+    cmd = "LD_LIBRARY_PATH='$(execpath @com_github_kleinpa_keyboardtoolbox//kbtb/cli).runfiles/com_gitlab_kicad_kicad' ./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli) --input=\"$<\" --format=main_kicad_pcb --output=\"$@\"",
+    exec_tools = [
         "@com_github_keebio_keebio_parts//:all",
-        "@com_github_kleinpa_kbtb//kbtb/cli",
+        "@com_github_kleinpa_keyboardtoolbox//kbtb/cli",
         "@com_gitlab_kicad_libraries_kicad_footprints//:all",
     ],
 )
@@ -49,21 +51,11 @@ genrule(
     name = "qmk",
     srcs = [":layout_pb"],
     outs = ["qmk.h"],
-    cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli) --input=\"$<\" --format=h --output=\"$@\"",
-    tools = ["@com_github_kleinpa_kbtb//kbtb/cli"],
+    cmd = "LD_LIBRARY_PATH='$(execpath @com_github_kleinpa_keyboardtoolbox//kbtb/cli).runfiles/com_gitlab_kicad_kicad' ./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli) --input=\"$<\" --format=h --output=\"$@\"",
+    exec_tools = ["@com_github_kleinpa_keyboardtoolbox//kbtb/cli"],
 )
 
-keyboard_plate_dxf(
-    name = "plate_dxf",
-    src = ":layout_pb",
-)
-
-genrule(
-    name = "board_routed_gerbers",
-    srcs = ["board_routed.kicad_pcb"],
-    outs = ["board_routed.zip"],
-    cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli:kicad_to_gerber) --input=\"$<\" --output=\"$@\"",
-    tools = [
-        "@com_github_kleinpa_kbtb//kbtb/cli:kicad_to_gerber",
-    ],
+gerbers_from_kicad(
+    name = "board_routed",
+    src = "board_routed.kicad_pcb",
 )
