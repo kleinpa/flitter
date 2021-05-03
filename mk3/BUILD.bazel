@@ -1,0 +1,69 @@
+load("@rules_python//python:defs.bzl", "py_binary")
+load("@com_github_kleinpa_kbtb//kbtb:defs.bzl", "keyboard_plate_dxf")
+load("@my_deps//:requirements.bzl", "requirement")
+
+py_binary(
+    name = "layout",
+    srcs = [
+        "layout.py",
+    ],
+    deps = [
+        requirement("absl-py"),
+        "@com_github_kleinpa_kbtb//kbtb:keyboard_lib",
+    ],
+)
+
+genrule(
+    name = "layout_pb",
+    outs = ["layout.pb"],
+    cmd = "./$(location :layout) --output=\"$@\"",
+    tools = [":layout"],
+)
+
+genrule(
+    name = "layout_svg",
+    srcs = [":layout_pb"],
+    outs = ["layout.svg"],
+    cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli:to_svg) --input=\"$<\" --format=svg --output=\"$@\"",
+    tools = ["@com_github_kleinpa_kbtb//kbtb/cli:to_svg"],
+    visibility = ["//visibility:public"],
+)
+
+# TODO(peterklein): fix switch import kicad module path
+genrule(
+    name = "board_kicad",
+    srcs = [":layout_pb"],
+    outs = ["board.kicad_pcb"],
+    cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli) --input=\"$<\" --format=main_kicad_pcb --output=\"$@\"",
+    tools = [
+        "@com_github_ai03_2725_typec//:all",
+        "@com_github_keebio_keebio_parts//:all",
+        "@com_github_kleinpa_kbtb//kbtb/cli",
+        "@com_github_kleinpa_kbtb//kbtb/kicad_modules",
+        "@com_gitlab_kicad_libraries_kicad_footprints//:all",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+# TODO(peterklein): fix qmk generation for stm32f072
+# genrule(
+#     name = "qmk",
+#     srcs = [":layout_pb"],
+#     outs = ["qmk.h"],
+#     cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli) --input=\"$<\" --format=h --output=\"$@\"",
+#     tools = ["@com_github_kleinpa_kbtb//kbtb/cli"],
+# )
+
+keyboard_plate_dxf(
+    name = "plate_top",
+    src = ":layout_pb",
+    plate_type = "top",
+    visibility = ["//visibility:public"],
+)
+
+keyboard_plate_dxf(
+    name = "plate_bottom",
+    src = ":layout_pb",
+    plate_type = "bottom",
+    visibility = ["//visibility:public"],
+)
