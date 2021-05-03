@@ -57,3 +57,13 @@ keyboard_plate_dxf(
     name = "plate_dxf",
     src = ":layout_pb",
 )
+
+genrule(
+    name = "board_routed_gerbers",
+    srcs = ["board_routed.kicad_pcb"],
+    outs = ["board_routed.zip"],
+    cmd = "./$(location @com_github_kleinpa_kbtb//kbtb/cli:kicad_to_gerber) --input=\"$<\" --output=\"$@\"",
+    tools = [
+        "@com_github_kleinpa_kbtb//kbtb/cli:kicad_to_gerber",
+    ],
+)
