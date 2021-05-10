@@ -4,7 +4,7 @@ from absl import app, flags
 
 from kbtb.keyboard import save_keyboard
 from kbtb.keyboard_pb2 import Keyboard, Position
-from kbtb.layout import holes_between_keys, mirror_keys, rotate_keys, grid
+from kbtb.layout import holes_between_keys, mirror_keys, rotate_keys, grid, pose_closest_point, between_pose,pose_closest_point
 from kbtb.outline import generate_outline_tight
 
 FLAGS = flags.FLAGS
@@ -12,9 +12,9 @@ flags.DEFINE_string('output', None, 'Output path.')
 flags.DEFINE_enum('format', 'bin', ['bin', 'text'], 'Protobuf output format.')
 
 
-def quine_2_keyboard():
+def layout():
     kb = Keyboard(
-        name="quine-mk2",
+        name="quine-mk3",
         controller=Keyboard.CONTROLLER_STM32F072,
         footprint=Keyboard.FOOTPRINT_CHERRY_MX,
 
@@ -43,7 +43,20 @@ def quine_2_keyboard():
                                     (30, 39), (6, 19), (10, 23), (23, 34))):
         kb.hole_positions.append(hole)
 
-    kb.controller_pose.CopyFrom(kb.keys[8].pose)
+
+    outline = generate_outline_tight(
+            kb,
+            outline_concave=80,
+            outline_convex=1.5,
+    )
+
+    kb.connector_pose.CopyFrom(
+        pose_closest_point(outline,
+                           between_pose(kb.keys[5].pose, kb.keys[6].pose)))
+
+    kb.controller_pose.CopyFrom(
+        between_pose(kb.keys[17].pose, kb.keys[18].pose))
+
 
     # TODO: un-hardcode
     row_nets = (0, 7, 8, 9)
@@ -53,19 +66,14 @@ def quine_2_keyboard():
         key.controller_pin_high = col_nets[(i % 12) +
                                            (3 if i // 12 == 3 else 0)]
 
-    for x, y in generate_outline_tight(
-            kb,
-            outline_concave=80,
-            outline_convex=1.5,
-    ).simplify(0.001).coords:
+    for x, y in outline.coords:
         kb.outline_polygon.add(x=x, y=y)
 
     return kb
 
 
 def main(argv):
-    kb = quine_2_keyboard()
-    save_keyboard(kb, FLAGS.output, FLAGS.format)
+    save_keyboard(layout(), FLAGS.output, FLAGS.format)
 
 
 if __name__ == "__main__":

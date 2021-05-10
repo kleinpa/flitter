@@ -12,7 +12,7 @@ flags.DEFINE_string('output', None, 'Output path.')
 flags.DEFINE_enum('format', 'bin', ['bin', 'text'], 'Protobuf output format.')
 
 
-def quine_2_keyboard():
+def layout():
     kb = Keyboard(
         name="quine-mk2",
         controller=Keyboard.CONTROLLER_PROMICRO,
@@ -63,8 +63,7 @@ def quine_2_keyboard():
 
 
 def main(argv):
-    kb = quine_2_keyboard()
-    save_keyboard(kb, FLAGS.output, FLAGS.format)
+    save_keyboard(layout(), FLAGS.output, FLAGS.format)
 
 
 if __name__ == "__main__":
