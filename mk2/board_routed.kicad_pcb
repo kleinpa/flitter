@@ -4338,7 +4338,7 @@
   (gr_line (start 16.044953 67.163606) (end 16.054335 67.128007) (layer "Edge.Cuts") (width 0.1) (tstamp fee738a6-4172-4cb7-9965-d589205388dd))
   (gr_line (start 121.129977 138.364181) (end 121.0962 138.349524) (layer "Edge.Cuts") (width 0.1) (tstamp ff18ea6c-664d-4ce6-a798-50fc22a02e4d))
   (gr_line (start 273.988649 68.033411) (end 273.975822 68.067919) (layer "Edge.Cuts") (width 0.1) (tstamp ff79b94b-f058-4396-98eb-c02dbe5669c3))
-  (gr_text "quine mk2\npeterklein.dev" (at 226.809903 86.895798 39) (layer "F.SilkS") (tstamp 05fd836b-7e7f-4b11-81b8-6871d86264ad)
+  (gr_text "flitter mk2\npeterklein.dev" (at 226.809903 86.895798 39) (layer "F.SilkS") (tstamp 05fd836b-7e7f-4b11-81b8-6871d86264ad)
     (effects (font (size 1.27 1.27)))
   )
 

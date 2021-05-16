@@ -14,7 +14,7 @@ flags.DEFINE_enum('format', 'bin', ['bin', 'text'], 'Protobuf output format.')
 
 def layout():
     kb = Keyboard(
-        name="quine-mk2",
+        name="flitter-mk2",
         controller=Keyboard.CONTROLLER_PROMICRO,
         switch=Keyboard.SWITCH_CHERRY_MX,
 
