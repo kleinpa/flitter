@@ -4,7 +4,7 @@ from absl import app, flags
 
 from kbtb.keyboard import save_keyboard
 from kbtb.keyboard_pb2 import Keyboard, Position
-from kbtb.layout import holes_between_keys, mirror_keys, rotate_keys, grid
+from kbtb.layout import holes_between_keys, between_pose, project_to_outline, mirror_keys, rotate_keys, grid
 from kbtb.outline import generate_outline_tight
 
 FLAGS = flags.FLAGS
@@ -19,7 +19,8 @@ def layout():
         switch=Keyboard.SWITCH_CHERRY_MX,
 
         # Plate outline parameters
-        hole_diameter=2.6,
+        hole_diameter=2.4,
+        info_text="flitter-mk2\npeterklein.dev",
     )
 
     pitch = 19.05
@@ -51,13 +52,19 @@ def layout():
         key.controller_pin_low = row_nets[i // 12]
         key.controller_pin_high = col_nets[(i % 12) +
                                            (3 if i // 12 == 3 else 0)]
-
-    for x, y in generate_outline_tight(
+    outline=generate_outline_tight(
             kb,
             outline_concave=80,
             outline_convex=1.5,
-    ).simplify(0.001).coords:
+     ).simplify(0.001)
+    for x, y in outline.coords:
         kb.outline_polygon.add(x=x, y=y)
+
+    kb.info_pose.CopyFrom(
+        project_to_outline(
+            outline,
+            between_pose(kb.keys[25].pose, kb.keys[36].pose),
+            offset=-4))
 
     return kb
 

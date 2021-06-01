@@ -1,12 +1,40 @@
-load("@com_github_kleinpa_kicadbazel//tools:defs.bzl", "gerbers_from_kicad")
-load("@com_github_kleinpa_keyboardtoolbox//kbtb:defs.bzl", "bomcpl_from_kicad")
+load("@com_github_kleinpa_kicadbazel//tools:defs.bzl", "kicad_bom", "kicad_gerbers")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
-gerbers_from_kicad(
-    name = "board",
+kicad_gerbers(
+    name = "mk3_gerbers",
     src = "board.kicad_pcb",
 )
 
-bomcpl_from_kicad(
-    name = "board_bom",
+kicad_bom(
+    name = "mk3_bom",
     src = "board.kicad_pcb",
+    component_file = "lcsc_part_numbers.csv",
+    fields = [
+        "Designator",
+        "Package",
+        "Value",
+        "LCSC Part Number",
+    ],
+)
+
+kicad_bom(
+    name = "mk3_cpl",
+    src = "board.kicad_pcb",
+    fields = [
+        "Designator",
+        "Mid X",
+        "Mid Y",
+        "Rotation",
+        "Layer",
+    ],
+)
+
+pkg_tar(
+    name = "mk3",
+    srcs = [
+        "mk3_bom",
+        "mk3_cpl",
+        "mk3_gerbers",
+    ],
 )

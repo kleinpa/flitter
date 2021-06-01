@@ -1,6 +1,7 @@
 load("@rules_python//python:defs.bzl", "py_binary")
-load("@com_github_kleinpa_keyboardtoolbox//kbtb:defs.bzl", "keyboard_plate_dxf")
 load("@my_deps//:requirements.bzl", "requirement")
+load("@com_github_kleinpa_keyboardtoolbox//kbtb:defs.bzl", "build_keyboard")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 py_binary(
     name = "layout",
@@ -20,50 +21,17 @@ genrule(
     exec_tools = [":layout"],
 )
 
-genrule(
-    name = "layout_svg",
-    srcs = [":layout_pb"],
-    outs = ["layout.svg"],
-    cmd = "./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli:to_svg) --input=\"$<\" --format=svg --output=\"$@\"",
-    exec_tools = ["@com_github_kleinpa_keyboardtoolbox//kbtb/cli:to_svg"],
-    visibility = ["//visibility:public"],
+build_keyboard(
+    name = "mk3",
+    src = ":layout_pb",
 )
 
-# TODO(peterklein): fix switch import kicad module path
-genrule(
-    name = "board_kicad",
-    srcs = [":layout_pb"],
-    outs = ["board.kicad_pcb"],
-    cmd = "LD_LIBRARY_PATH='$(execpath @com_github_kleinpa_keyboardtoolbox//kbtb/cli).runfiles/com_gitlab_kicad_kicad' ./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli) --input=\"$<\" --format=main_kicad_pcb --output=\"$@\"",
-    exec_tools = [
-        "@com_github_ai03_2725_typec//:all",
-        "@com_github_keebio_keebio_parts//:all",
-        "@com_github_kleinpa_keyboardtoolbox//kbtb/cli",
-        "@com_github_kleinpa_keyboardtoolbox//kbtb/kicad_modules",
-        "@com_gitlab_kicad_libraries_kicad_footprints//:all",
+pkg_tar(
+    name = "archive",
+    srcs = [
+        "mk3.kicad_pcb",
+        "mk3.svg",
+        "mk3_plate_bottom.dxf",
+        "mk3_plate_top.dxf",
     ],
-    visibility = ["//visibility:public"],
-)
-
-# TODO(peterklein): fix qmk generation for stm32f072
-# genrule(
-#     name = "qmk",
-#     srcs = [":layout_pb"],
-#     outs = ["qmk.h"],
-#     cmd = "./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli) --input=\"$<\" --format=h --output=\"$@\"",
-#     exec_tools = ["@com_github_kleinpa_keyboardtoolbox//kbtb/cli"],
-# )
-
-keyboard_plate_dxf(
-    name = "plate_top",
-    src = ":layout_pb",
-    plate_type = "top",
-    visibility = ["//visibility:public"],
-)
-
-keyboard_plate_dxf(
-    name = "plate_bottom",
-    src = ":layout_pb",
-    plate_type = "bottom",
-    visibility = ["//visibility:public"],
 )

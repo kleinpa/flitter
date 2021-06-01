@@ -1,7 +1,8 @@
 load("@rules_python//python:defs.bzl", "py_binary")
-load("@com_github_kleinpa_keyboardtoolbox//kbtb:defs.bzl", "keyboard_plate_dxf")
 load("@my_deps//:requirements.bzl", "requirement")
-load("@com_github_kleinpa_kicadbazel//tools:defs.bzl", "gerbers_from_kicad")
+load("@com_github_kleinpa_keyboardtoolbox//kbtb:defs.bzl", "build_keyboard")
+load("@com_github_kleinpa_kicadbazel//tools:defs.bzl", "kicad_gerbers")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 py_binary(
     name = "layout",
@@ -21,41 +22,25 @@ genrule(
     exec_tools = [":layout"],
 )
 
-keyboard_plate_dxf(
-    name = "plate_top",
+build_keyboard(
+    name = "mk2",
     src = ":layout_pb",
-    plate_type = "top",
 )
 
-genrule(
-    name = "layout_svg",
-    srcs = [":layout_pb"],
-    outs = ["layout.svg"],
-    cmd = "./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli:to_svg) --input=\"$<\" --format=svg --output=\"$@\"",
-    exec_tools = ["@com_github_kleinpa_keyboardtoolbox//kbtb/cli:to_svg"],
-)
-
-genrule(
-    name = "board_kicad",
-    srcs = [":layout_pb"],
-    outs = ["board.kicad_pcb"],
-    cmd = "LD_LIBRARY_PATH='$(execpath @com_github_kleinpa_keyboardtoolbox//kbtb/cli).runfiles/com_gitlab_kicad_kicad' ./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli) --input=\"$<\" --format=main_kicad_pcb --output=\"$@\"",
-    exec_tools = [
-        "@com_github_keebio_keebio_parts//:all",
-        "@com_github_kleinpa_keyboardtoolbox//kbtb/cli",
-        "@com_gitlab_kicad_libraries_kicad_footprints//:all",
+pkg_tar(
+    name = "archive",
+    srcs = [
+        "mk2.kicad_pcb",
+        "mk2.svg",
+        "mk2_plate_bottom.dxf",
+        "mk2_plate_bottom.kicad_pcb",
+        "mk2_plate_top.dxf",
+        "mk2_plate_top.kicad_pcb",
     ],
 )
 
-genrule(
-    name = "qmk",
-    srcs = [":layout_pb"],
-    outs = ["qmk.h"],
-    cmd = "LD_LIBRARY_PATH='$(execpath @com_github_kleinpa_keyboardtoolbox//kbtb/cli).runfiles/com_gitlab_kicad_kicad' ./$(location @com_github_kleinpa_keyboardtoolbox//kbtb/cli) --input=\"$<\" --format=h --output=\"$@\"",
-    exec_tools = ["@com_github_kleinpa_keyboardtoolbox//kbtb/cli"],
-)
-
-gerbers_from_kicad(
-    name = "board_routed",
+kicad_gerbers(
+    name = "mk2_routed",
     src = "board_routed.kicad_pcb",
+    visibility = ["//visibility:public"],
 )
