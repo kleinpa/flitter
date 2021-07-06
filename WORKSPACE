@@ -15,9 +15,9 @@ pip_install(
 
 http_archive(
     name = "com_github_kleinpa_keyboardtoolbox",
-    sha256 = "9856d191584e5b4292d02d8b1193250defb401df14b866c0f536bf0273aa859d",
-    strip_prefix = "keyboard-toolbox-37420006b523643a2b69f3fc48997137fcf675da",
-    url = "https://github.com/kleinpa/keyboard-toolbox/archive/37420006b523643a2b69f3fc48997137fcf675da.tar.gz",
+    sha256 = "2aaac851c09ab984704dd98f72e4a2f32ae7b3abf12094223598f2ce8b6a5455",
+    strip_prefix = "keyboard-toolbox-12ed493401dd07e6509beec54e39827c568d3239",
+    url = "https://github.com/kleinpa/keyboard-toolbox/archive/12ed493401dd07e6509beec54e39827c568d3239.tar.gz",
 )
 
 load("@com_github_kleinpa_keyboardtoolbox//kbtb:repos.bzl", "kbtb_repos")
