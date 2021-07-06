@@ -15,23 +15,42 @@ py_binary(
 )
 
 genrule(
-    name = "layout_pb",
+    name = "layout_stm32f072_pb",
     outs = ["layout.pb"],
-    cmd = "./$(location :layout) --output=\"$@\"",
+    cmd = "./$(location :layout) --variant stm32f072 --output=\"$@\"",
     exec_tools = [":layout"],
 )
 
 build_keyboard(
     name = "mk3",
-    src = ":layout_pb",
+    src = ":layout_stm32f072_pb",
+)
+
+build_keyboard(
+    name = "mk3_stm32f072",
+    src = ":layout_stm32f072_pb",
+)
+
+genrule(
+    name = "layout_atmega32u4_pb",
+    outs = ["layout_atmega32u4.pb"],
+    cmd = "./$(location :layout) --variant atmega32u4 --output=\"$@\"",
+    exec_tools = [":layout"],
+)
+
+build_keyboard(
+    name = "mk3_atmega32u4",
+    src = ":layout_atmega32u4_pb",
 )
 
 pkg_tar(
     name = "archive",
     srcs = [
-        "mk3.kicad_pcb",
         "mk3.svg",
+        "mk3_atmega32u4.kicad_pcb",
+        "mk3_atmega32u4-info.json",
         "mk3_plate_bottom.dxf",
         "mk3_plate_top.dxf",
+        "mk3_stm32f072.kicad_pcb",
     ],
 )

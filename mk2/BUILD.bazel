@@ -32,6 +32,7 @@ pkg_tar(
     srcs = [
         "mk2.kicad_pcb",
         "mk2.svg",
+        "mk2-info.json",
         "mk2_plate_bottom.dxf",
         "mk2_plate_bottom.kicad_pcb",
         "mk2_plate_top.dxf",

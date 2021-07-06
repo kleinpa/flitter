@@ -2,13 +2,13 @@ load("@com_github_kleinpa_kicadbazel//tools:defs.bzl", "kicad_bom", "kicad_gerbe
 load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 kicad_gerbers(
-    name = "mk3_gerbers",
-    src = "board.kicad_pcb",
+    name = "mk3s_gerbers",
+    src = "mk3s.kicad_pcb",
 )
 
 kicad_bom(
-    name = "mk3_bom",
-    src = "board.kicad_pcb",
+    name = "mk3s_bom",
+    src = "mk3s.kicad_pcb",
     component_file = "lcsc_part_numbers.csv",
     fields = [
         "Designator",
@@ -19,7 +19,7 @@ kicad_bom(
 )
 
 kicad_bom(
-    name = "mk3_cpl",
+    name = "mk3s_cpl",
     src = "board.kicad_pcb",
     fields = [
         "Designator",
@@ -31,10 +31,48 @@ kicad_bom(
 )
 
 pkg_tar(
-    name = "mk3",
+    name = "mk3s",
     srcs = [
-        "mk3_bom",
-        "mk3_cpl",
-        "mk3_gerbers",
+        "mk3s_bom",
+        "mk3s_cpl",
+        "mk3s_gerbers",
+    ],
+)
+
+kicad_gerbers(
+    name = "mk3a_gerbers",
+    src = "mk3a.kicad_pcb",
+)
+
+kicad_bom(
+    name = "mk3a_bom",
+    src = "mk3a.kicad_pcb",
+    component_file = "lcsc_part_numbers.csv",
+    fields = [
+        "Designator",
+        "Package",
+        "Value",
+        "LCSC Part Number",
+    ],
+)
+
+kicad_bom(
+    name = "mk3a_cpl",
+    src = "mk3a.kicad_pcb",
+    fields = [
+        "Designator",
+        "Mid X",
+        "Mid Y",
+        "Rotation",
+        "Layer",
+    ],
+)
+
+pkg_tar(
+    name = "mk3a",
+    srcs = [
+        "mk3a_bom",
+        "mk3a_cpl",
+        "mk3a_gerbers",
     ],
 )
