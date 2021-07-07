@@ -2,4 +2,3 @@ absl-py
 alphashape
 ezdxf
 shapely
-sexpdata

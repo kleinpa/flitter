@@ -1,5 +1,9 @@
 load("@rules_python//python:defs.bzl", "py_binary")
 load("@my_deps//:requirements.bzl", "requirement")
+load("@com_github_kleinpa_kicadbazel//tools:defs.bzl", "kicad_gerbers")
+
+#load("@com_github_kleinpa_keyboardtoolbox//kbtb:defs.bzl", "build_keyboard")
+load("@bazel_tools//tools/build_defs/pkg:pkg.bzl", "pkg_tar")
 
 py_binary(
     name = "make_plate",
@@ -10,7 +14,7 @@ py_binary(
         "utils.py",
     ],
     deps = [
-        "@com_gitlab_kicad_kicad//:pcbnew_python",
+        "@com_github_kleinpa_kicadbazel//:pcbnew",
         requirement("absl-py"),
         requirement("ezdxf"),
         requirement("shapely"),
@@ -20,21 +24,30 @@ py_binary(
 genrule(
     name = "keyboard_plate_dxf",
     outs = ["keyboard-plate.dxf"],
-    cmd = "./$(location //:make_plate) --format=dxf --output=\"$@\"",
+    cmd = "LD_LIBRARY_PATH='$(execpath //:make_plate).runfiles/com_gitlab_kicad_kicad' ./$(location //:make_plate) --format=dxf --output=\"$@\"",
+    exec_tools = [
+        "@com_github_kleinpa_kicadbazel//:pcbnew",
+    ],
     tools = [":make_plate"],
 )
 
 genrule(
     name = "keyboard_plate_svg",
     outs = ["keyboard-plate.svg"],
-    cmd = "./$(location //:make_plate) --format=svg --output=\"$@\"",
+    cmd = "LD_LIBRARY_PATH='$(execpath //:make_plate).runfiles/com_gitlab_kicad_kicad' ./$(location //:make_plate) --format=svg --output=\"$@\"",
+    exec_tools = [
+        "@com_github_kleinpa_kicadbazel//:pcbnew",
+    ],
     tools = [":make_plate"],
 )
 
 genrule(
     name = "keyboard_plate_kicad",
     outs = ["keyboard-plate.kicad_pcb"],
-    cmd = "./$(location //:make_plate) --format=kicad_pcb --output=\"$@\"",
+    cmd = "LD_LIBRARY_PATH='$(execpath //:make_plate).runfiles/com_gitlab_kicad_kicad' ./$(location //:make_plate) --format=kicad_pcb --output=\"$@\"",
+    exec_tools = [
+        "@com_github_kleinpa_kicadbazel//:pcbnew",
+    ],
     tools = [":make_plate"],
 )
 
@@ -48,7 +61,7 @@ py_binary(
     ],
     data = ["@com_github_keebio_keebio_parts//:all"],
     deps = [
-        "@com_gitlab_kicad_kicad//:pcbnew_python",
+        "@com_gitlab_kicad_kicad//:pcbnew",
         requirement("absl-py"),
         requirement("shapely"),
     ],
@@ -61,33 +74,25 @@ genrule(
         "@com_gitlab_kicad_libraries_kicad_footprints//:all",
     ],
     outs = ["keyboard-pcb.kicad_pcb"],
-    cmd = "./$(location //:make_pcb) --output=\"$@\"",
+    cmd = "LD_LIBRARY_PATH='$(execpath //:make_pcb).runfiles/com_gitlab_kicad_kicad' ./$(location //:make_pcb) --output=\"$@\"",
+    exec_tools = [
+        "@com_github_kleinpa_kicadbazel//:pcbnew",
+    ],
     tools = [":make_pcb"],
 )
 
-py_binary(
-    name = "make_gerbers",
-    srcs = [
-        "make_gerbers.py",
-    ],
-    deps = [
-        requirement("absl-py"),
-        "@com_gitlab_kicad_kicad//:pcbnew_python",
-    ],
-)
-
-genrule(
+kicad_gerbers(
     name = "quine_mk1_main_gerbers",
-    srcs = ["quine-mk1-main-routed.kicad_pcb"],
-    outs = ["quine-mk1-main-gerbers.zip"],
-    cmd = "./$(location //:make_gerbers) --input=\"$<\" --output=\"$@\"",
-    tools = [":make_gerbers"],
+    src = ":quine-mk1-main-routed.kicad_pcb",
 )
 
-genrule(
+kicad_gerbers(
     name = "keyboard_plate_gerbers",
-    srcs = [":keyboard_plate_kicad"],
-    outs = ["keyboard-plate-gerbers.zip"],
-    cmd = "./$(location //:make_gerbers) --input=\"$<\" --output=\"$@\"",
-    tools = [":make_gerbers"],
+    src = ":keyboard_plate_kicad",
+)
+
+pkg_tar(
+    name = "archive",
+    srcs = [
+    ],
 )
